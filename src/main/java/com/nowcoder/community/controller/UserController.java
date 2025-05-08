@@ -14,15 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
@@ -108,6 +107,30 @@ public class UserController {
         }
 
     }
+
+
+
+    @LoginRequired
+    @RequestMapping(path = "/changePassword",method = RequestMethod.POST)
+    public String changePassword(@RequestParam("oldPassword") String oldPassword,
+                                 @RequestParam("newPassword") String newPassword,
+                                 @RequestParam("confirmPassword") String confirmPassword,Model model){
+        //获取当前登录用户
+        User user = hostHolder.getUser();
+        if (user==null){
+            model.addAttribute("error","用户未登录");
+            return "/site/setting";
+        }
+
+        //调用服务层方法修改密码
+        Map<String,Object> result = userService.changePassword(user.getId(),oldPassword,newPassword,confirmPassword);
+        if(result.containsKey("success")){
+            return "redirect:/index";
+        }else {
+            model.addAttribute("error",result.get("error"));
+            return "/site/setting";
+        }
+     }
 
 
 }
