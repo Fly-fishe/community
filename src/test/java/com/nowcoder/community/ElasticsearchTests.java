@@ -91,8 +91,6 @@ public class ElasticsearchTests {
     @Test
     public void testSearchByRepository()  {
 
-
-        // 构建查询（包含高亮配置）
         NativeQuery searchQuery = NativeQuery.builder()
                 .withQuery(QueryBuilders.multiMatch(m -> m
                         .query("互联网寒冬")
