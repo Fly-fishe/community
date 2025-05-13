@@ -1,5 +1,6 @@
 package com.nowcoder.community.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 public class User {

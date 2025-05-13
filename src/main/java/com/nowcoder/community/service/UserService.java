@@ -1,5 +1,6 @@
 package com.nowcoder.community.service;
 
+import com.nowcoder.community.controller.interceptor.LoginTicketInterceptor;
 import com.nowcoder.community.dao.LoginTicketMapper;
 import com.nowcoder.community.dao.UserMapper;
 import com.nowcoder.community.entity.LoginTicket;
@@ -9,6 +10,8 @@ import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.MailClient;
 import com.nowcoder.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -259,6 +262,26 @@ public class UserService implements CommunityConstant {
         String redisKey = RedisKeyUtil.getUserKey(userId);
         redisTemplate.delete(redisKey);
     }
+    public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
+    User user = this.findUserById(userId);
+
+    List<GrantedAuthority> list = new ArrayList<>();
+    list.add(new GrantedAuthority() {
+
+        @Override
+        public String getAuthority() {
+            switch (user.getType()) {
+                case 1:
+                    return AUTHORITY_ADMIN;
+                case 2:
+                    return AUTHORITY_MODERATOR;
+                default:
+                    return AUTHORITY_USER;
+            }
+        }
+    });
+    return list;
+}
 
     public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
         User user = this.findUserById(userId);
