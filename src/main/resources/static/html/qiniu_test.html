@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>七牛云上传测试</title>
+    <script src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/qiniu-js-sdk/7.2.2/qiniu.min.js"></script>
+</head>
+<body>
+<div id="container">
+    <button id="pickfiles">选择文件</button>
+</div>
+
+<script>
+    // 获取上传凭证
+    $.ajax({
+        url: '/setting',
+        method: 'GET',
+        success: function(data) {
+            var uploader = Qiniu.uploader({
+                runtimes: 'html5,flash,html4',
+                browse_button: 'pickfiles',
+                uptoken: data.uploadToken,
+                domain: 'http://sw953ia17.hn-bkt.clouddn.com',
+                container: 'container',
+                max_file_size: '10mb',
+                flash_swf_url: 'path/to/plupload/Moxie.swf',
+                filters: {
+                    mime_types: [
+                        { title: "Image files", extensions: "jpg,jpeg,png" }
+                    ]
+                },
+                init: {
+                    'FileUploaded': function(up, file, info) {
+                        console.log('上传成功', info);
+                        var res = JSON.parse(info);
+                        alert('上传成功，文件名: ' + res.key);
+
+                        // 测试更新URL接口
+                        $.ajax({
+                            url: '/header/url',
+                            method: 'POST',
+                            data: {fileName: res.key},
+                            success: function(result) {
+                                alert('更新结果: ' + JSON.stringify(result));
+                            }
+                        });
+                    },
+                    'Error': function(up, err, errTip) {
+                        console.error('上传错误', err, errTip);
+                        alert('上传失败: ' + errTip);
+                    }
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
